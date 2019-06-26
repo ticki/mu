@@ -1,0 +1,10 @@
+[package]
+name = "mkmu"
+version = "0.1.0"
+authors = ["ticki <ticki@noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+failure = "0.1"
+clap = "2.32"
+walkdir = "2"

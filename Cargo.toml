@@ -1,0 +1,13 @@
+[package]
+name = "mu"
+version = "0.1.0"
+authors = ["ticki <ticki@noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+termion = "1.5"
+mu-backend = { path = "backend" }
+clap = "2"
+failure = "0.1"
+itertools = "0.6"
