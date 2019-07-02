@@ -256,7 +256,7 @@ impl Scheduler {
         // Update the card queue if it hasn't been updated today, or haven't ever been updated
         // before.
         if self.sched.updated
-            .map(|updated| (updated - now).num_days() >= 1)
+            .map(|updated| (now - updated).num_days() >= 1)
             .unwrap_or(true) {
             // Update time.
             self.sched.updated = Some(now);
