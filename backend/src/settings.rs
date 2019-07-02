@@ -117,10 +117,9 @@ impl Default for TagSettings {
     fn default() -> TagSettings {
         TagSettings {
             learning_intervals: vec![
-                chrono::Duration::minutes(30),
                 chrono::Duration::days(1),
+                chrono::Duration::days(2),
                 chrono::Duration::days(3),
-                chrono::Duration::days(6),
             ],
             learning_interval_progressions: [-2, 1, 1, 2, 2],
             relearning_intervals: vec![
@@ -133,7 +132,7 @@ impl Default for TagSettings {
             starting_ease: 2.5,
             max_ease: 3.5,
             min_ease: 1.3,
-            ease_increase: [-0.20, -0.15, 0.0, 0.05, 0.15],
+            ease_increase: [-0.2, -0.15, 0.0, 0.05, 0.15],
             interval_modifier: 1.0,
             score_modifiers: [1.0, 0.7, 1.0, 1.2, 1.4],
             priority_modifiers: [3.0, 2.0, 1.0, 0.5, 0.3],
