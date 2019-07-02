@@ -1,4 +1,4 @@
-# `mu` — Advanced Unix-style Memory Card System
+# `mu` — Advanced Unix-style Spaced Repetition System
 
 After becoming increasingly dissatisfied with my workflow in Anki, which I use
 for studying, I decided to write `mu`, which essentially replicates the
@@ -13,9 +13,9 @@ hack with all sorts of issues with diagrams and so on. `mu` is literally just
 opening a PDF viewer (e.g. in some sort of presentation mode, as `zathura`
 implements) for viewing card, and therefore will just view your rendered TeX
 file.
-- _Memory cards sit in the file system instead of a database:_ One major issue
-with Anki is how memory cards are stored in a database file, which in
-particular means that you cannot keep your cards in a Git repository.
+- _Flashcards sit in the file system instead of a database:_ One major issue
+with Anki is how flashcards are stored in a database file, which in particular
+means that you cannot keep your cards in a Git repository.
 - _Editing is done in your editor of choice:_ Somewhat adjacent to the previous
 point, I found that the Anki editor encouraged laziness, because I could not
 use my editor of choice when creating and editing cards. When I have increased
@@ -40,7 +40,7 @@ with one subject than another.
 - [ ] Make interactive cards easier: While the `.mu` format implements `sh: `
   followed by a command for specifying an arbitrary command (e.g. some program
   doing cloze) instead of a PDF, this is not implemented by `mkmu`.
-  - [ ] Implement a `cloze` program and other interactive memory card styles.
+  - [ ] Implement a `cloze` program and other interactive flashcard styles.
 - [ ] Heatmap of activity.
 - [ ] Align `rt` table.
 - [ ] Add command to output sorted familiarities.
@@ -84,5 +84,5 @@ shell-like problem that looks like this (run `help` to see list of commands):
     easy:  1d
     D:0 N:9 >> good
 
-This opens the TeX files, containing the memory cards. The default viewer is
+This opens the TeX files, containing the flashcards. The default viewer is
 `zathura`, but can be set by changing the `MU_PDF_VIEWER` environment variable.

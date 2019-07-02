@@ -1,4 +1,4 @@
-//! Collections of memory cards.
+//! Collections of flashcards.
 
 use std::collections::HashMap;
 use std::{num, mem, fmt, error};
@@ -8,7 +8,7 @@ use chrono;
 use crate::cards;
 use crate::settings;
 
-/// A collection of memory cards, without any data about learning state.
+/// A collection of flashcards, without any data about learning state.
 #[derive(Debug)]
 pub struct Deck {
     /// The global settings.

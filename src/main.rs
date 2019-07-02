@@ -372,7 +372,7 @@ fn main_err() -> Result<(), Error> {
     // Parse flags etc..
     let matches = App::new("Mu")
         .version("0.1.0")
-        .about("Advanced Unix-style Memory Card System")
+        .about("Advanced Unix-style Spaced Repetition System")
         .arg(Arg::with_name("DECK")
              .help("Sets the '.mu' deck file to use")
              .default_value("deck.mu"))

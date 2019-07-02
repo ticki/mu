@@ -1,4 +1,4 @@
-//! Content and state of memory cards.
+//! Content and state of flashcards.
 
 use std::{env, process, io};
 
@@ -150,7 +150,7 @@ impl Default for Card {
     }
 }
 
-/// The background information and state of a memory card.
+/// The background information and state of a flashcard.
 ///
 /// The content of the card is stored separately, in the form of a `Card`.
 #[derive(Serialize, Deserialize, Debug)]

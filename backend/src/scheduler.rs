@@ -1,4 +1,4 @@
-//! Scheduling of memory cards.
+//! Scheduling of flashcards.
 
 use std::cmp;
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -94,7 +94,7 @@ impl Statistics {
 /// the content of the cards.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Schedule {
-    /// The learning states of the memory cards.
+    /// The learning states of the flashcards.
     metacards: Vec<cards::Metacard>,
     /// Statistics for all the cards.
     statistics: Statistics,
@@ -155,7 +155,7 @@ pub struct Scheduler {
     /// It is an type invariant that all the contained metacards have existing associated cards in
     /// `deck`.
     sched: Schedule,
-    /// The content of the memory cards.
+    /// The content of the flashcards.
     deck: deck::Deck,
     /// The current card.
     current_card: MetacardRef,

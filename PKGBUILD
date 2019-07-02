@@ -1,7 +1,7 @@
 pkgname=mu
 pkgver=0.1
 pkgrel=1
-pkgdesc="Advanced Unix-style Memory Card System"
+pkgdesc="Advanced Unix-style Spaced Repetition System"
 arch=("any")
 url="https://github.com/ticki/mu"
 license=('MIT')

@@ -1,4 +1,4 @@
-//! Mu -- Advanced Unix-style Memory Card System
+//! Mu -- Advanced Unix-style Spaced Repetition System
 
 // TODO: Clean up `use`
 // TODO: Run rustfmt
