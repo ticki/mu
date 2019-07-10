@@ -127,7 +127,7 @@ impl Default for TagSettings {
                 chrono::Duration::days(1),
             ],
             relearning_interval_progressions: [-999, 1, 1, 1, 2],
-            max_interval: chrono::Duration::days(50),
+            max_interval: chrono::Duration::days(150),
             min_interval_increase: chrono::Duration::days(1),
             starting_ease: 2.5,
             max_ease: 3.5,
