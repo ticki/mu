@@ -50,6 +50,11 @@ impl Statistics {
             / self.reviews.len() as f32
     }
 
+    /// Get the familiarity.
+    pub fn familiarity(&self) -> cards::Ease {
+        self.familiarity
+    }
+
     /// Add a review of certain score to the statistics.
     fn review(&mut self, score: cards::Score, settings: &settings::TagSettings) {
         // Record review.

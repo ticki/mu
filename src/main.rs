@@ -20,7 +20,7 @@ const HELP: &'static str = r#"view, v  : View the current card
 info, i  : Print card info
 meta, m  : Print card meta data
 hist, hi : Print card history
-rate, rt : Print retention rates
+tags, tg : Print tag statistics
 help, he : Print this help page
 quit, q  : Quit the program
 fail, f  : Review the card as failed
@@ -159,8 +159,8 @@ impl<W: Write, R: io::BufRead> State<W, R> {
             "meta" | "m" => self.print_meta()?,
             // Print history of the card.
             "hist" | "hi" => self.print_history()?,
-            // Print retention rates.
-            "rate" | "rt" => self.print_retention()?,
+            // Print tag statistics.
+            "tags" | "tg" => self.print_tag_statistics()?,
             // Quit the program.
             "quit" | "q" => return Ok(false),
             // Print help screen.
@@ -281,20 +281,26 @@ impl<W: Write, R: io::BufRead> State<W, R> {
         Ok(())
     }
 
-    /// Print the retention interval statistics.
-    fn print_retention(&mut self) -> Result<(), Error> {
+    /// Print the tag statistics.
+    fn print_tag_statistics(&mut self) -> Result<(), Error> {
         // Print header.
-        self.print_header(format_args!("retention rates"))?;
+        self.print_header(format_args!("tag statistics"))?;
         // Print retention rate for all cards.
         let sched = self.scheduler.schedule();
-        writeln!(self.stdout, "{}all{}: {:.2}",
+        writeln!(self.stdout, "NAME: RETENTION%, FAMILIARITY")?;
+        writeln!(self.stdout, "{}all{}: {:.1}%, {:.2}",
             style::Underline,
             style::Reset,
-            sched.statistics().retention_rate(),
+            sched.statistics().retention_rate() * 100.0,
+            sched.statistics().familiarity(),
         )?;
         // Print retention rates for each tag.
         for (tag, stat) in sched.tag_statistics() {
-            writeln!(self.stdout, "{}: {:.2}", tag, stat.retention_rate())?;
+            writeln!(self.stdout, "{}: {:.1}%, {:.2}",
+                tag,
+                stat.retention_rate() * 100.0,
+                stat.familiarity(),
+            )?;
         }
 
         Ok(())
