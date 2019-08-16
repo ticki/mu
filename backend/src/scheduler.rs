@@ -66,8 +66,8 @@ impl Statistics {
         self.adaptive_retention_rate = (1.0 - settings.score_weight) * self.adaptive_retention_rate
             + settings.score_weight * match score {
             cards::Score::Fail => 0.0,
-            cards::Score::Hard => 0.95,
-            cards::Score::Okay => 1.0,
+            cards::Score::Hard => 0.92,
+            cards::Score::Okay => 0.98,
             cards::Score::Good => 1.02,
             cards::Score::Easy => 1.05,
         };
