@@ -110,6 +110,13 @@ pub struct Schedule {
     /// They should update daily, so this is simply used to ensure that they will not update
     /// multiple times a day.
     updated: Option<Time>,
+    /// Number of cards that have been introduced today.
+    ///
+    /// This is used to ensure that the new queue doesn't simply truncate when the session is
+    /// restarted. That is, whenever a day has passed since `updated`, this is set to
+    /// `settings.max_new_daily`.
+    #[serde(default)]
+    new_today: u32,
 }
 
 impl Schedule {
@@ -121,6 +128,7 @@ impl Schedule {
             tag_statistics: HashMap::new(),
             // We start with `None`, which tells `update()` to fill new queue when called.
             updated: None,
+            new_today: 0,
         }
     }
 
@@ -238,6 +246,13 @@ impl Scheduler {
             due: 0,
         };
 
+        // Populate the new cards queue with the new cards from today, that are not studied yet.
+        for _ in 0..sched.sched.new_today {
+            if let Some(card) = sched.new_cards.pop() {
+                sched.new_queue.push(card);
+            } else { break; }
+        }
+
         // Generate the rest of the scheduler.
         sched.update();
         // If the queues are still empty, forcibly add a new card to the new queue.
@@ -258,15 +273,15 @@ impl Scheduler {
         // Update due.
         self.due = self.queue.iter().filter(|(&time, _)| time < now).count();
         // TODO: What if self.deck.settings.max_new_queue was 0?
-        // Update the card queue if it hasn't been updated today, or haven't ever been updated
+        // Update the new card queue if it hasn't been updated today, or haven't ever been updated
         // before.
         if self.sched.updated
             .map(|updated| (now - updated).num_days() >= 1)
             .unwrap_or(true) {
             // Update time.
             self.sched.updated = Some(now);
-            // Update the new cards queue. Push new cards until the daily cap or the maximal length is
-            // achieved.
+            // Populate the new cards queue. Push new cards until the daily cap or the maximal
+            // length is achieved.
             for _ in self.new_queue.len()..cmp::min(
                 self.deck.settings.max_new_daily + self.new_queue.len(),
                 self.deck.settings.max_new_queue
@@ -276,6 +291,9 @@ impl Scheduler {
                 } else { break; }
             }
         }
+
+        // Set the number of new cards for today.
+        self.sched.new_today = self.new_queue.len() as u32;
     }
 
     /// Reschedule the current card.
