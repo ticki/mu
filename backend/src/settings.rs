@@ -135,7 +135,7 @@ impl Default for TagSettings {
             ease_increase: [-0.2, -0.15, 0.0, 0.05, 0.15],
             interval_modifier: 1.0,
             score_modifiers: [1.0, 0.7, 1.0, 1.2, 1.4],
-            priority_modifiers: [3.0, 2.0, 1.0, 0.5, 0.3],
+            priority_modifiers: [2.5, 1.5, 1.0, 0.6, 0.4],
             score_weight: 0.05,
             familiarity_delta: 0.1,
             max_familiarity: 2.0,
