@@ -1,6 +1,6 @@
 //! Content and state of flashcards.
 
-use std::{env, process, io};
+use std::{env, process, io, cmp};
 
 use chrono;
 use serde::{Serialize, Deserialize};
@@ -137,6 +137,10 @@ pub struct Card {
     pub tags: Vec<String>,
     /// The card's priority.
     pub priority: Priority,
+    /// The user-specified upper-bound for the interval of the card.
+    ///
+    /// If the calculated interval exceeds bound, the given interval will be this duration.
+    pub max_interval: chrono::Duration,
 }
 
 impl Default for Card {
@@ -146,6 +150,8 @@ impl Default for Card {
             tags: Vec::new(),
             // 2 should be around the average priority, so seems like a good default value.
             priority: 2,
+            // Default to no maximal interval.
+            max_interval: chrono::Duration::max_value(),
         }
     }
 }
@@ -183,32 +189,32 @@ impl Metacard {
     }
 
     /// Calculate new interval assuming that `self.state` is `New`.
-    fn new_interval_new(&self, settings: &settings::TagSettings, score: Score) -> chrono::Duration {
-        settings.learning_intervals[settings.get_learning_interval(
+    fn new_interval_new(&self, settings: &settings::TagSettings, score: Score, max_interval: chrono::Duration) -> chrono::Duration {
+        cmp::min(max_interval, settings.learning_intervals[settings.get_learning_interval(
             settings.learning_interval_progressions[score as usize] - 1
-        )]
+        )])
     }
 
     /// Calculate new interval assuming that `self.state` is `Learning(step)`.
-    fn new_interval_learning(&self, settings: &settings::TagSettings, score: Score, step: usize)
+    fn new_interval_learning(&self, settings: &settings::TagSettings, score: Score, step: usize, max_interval: chrono::Duration)
         -> chrono::Duration
     {
-        settings.learning_intervals[settings.get_learning_interval(
+        cmp::min(max_interval, settings.learning_intervals[settings.get_learning_interval(
             step as isize + settings.learning_interval_progressions[score as usize]
-        )]
+        )])
     }
 
     /// Calculate new interval assuming that `self.state` is `Relearning(step)`.
-    fn new_interval_relearning(&self, settings: &settings::TagSettings, score: Score, step: usize)
+    fn new_interval_relearning(&self, settings: &settings::TagSettings, score: Score, step: usize, max_interval: chrono::Duration)
         -> chrono::Duration
     {
-        settings.relearning_intervals[settings.get_relearning_interval(
+        cmp::min(max_interval, settings.relearning_intervals[settings.get_relearning_interval(
             step as isize + settings.relearning_interval_progressions[score as usize]
-        )]
+        )])
     }
 
     /// Calculate new interval after nonfailed review assuming that `self.state` is `Learnt`.
-    fn new_interval_learnt(&self, settings: &settings::TagSettings, score: Score, priority: Priority, modifier: Ease) -> chrono::Duration {
+    fn new_interval_learnt(&self, settings: &settings::TagSettings, score: Score, priority: Priority, modifier: Ease, max_interval: chrono::Duration) -> chrono::Duration {
         debug_assert!(score != Score::Fail);
 
         // Calculate unsaturated new interval. This formula is based on the SM2 algorithm.
@@ -220,13 +226,13 @@ impl Metacard {
             * settings.priority_modifiers[priority as usize]) as i64);
 
         // Saturate the new interval according to the chosen settings.
-        if new_int > settings.max_interval {
+        cmp::min(max_interval, if new_int > settings.max_interval {
             settings.max_interval
         } else if new_int - self.current_interval < settings.min_interval_increase {
             self.current_interval + settings.min_interval_increase
         } else {
             new_int
-        }
+        })
     }
 
     /// Calculate the new ease after reviewing a card with score `score`.
@@ -245,42 +251,42 @@ impl Metacard {
     }
 
     /// The updated intervals, depending on score.
-    pub fn new_intervals(&self, settings: &settings::TagSettings, priority: Priority, modifier: Ease) -> [chrono::Duration; SCORES] {
+    pub fn new_intervals(&self, settings: &settings::TagSettings, priority: Priority, modifier: Ease, max_interval: chrono::Duration) -> [chrono::Duration; SCORES] {
         match self.state {
             CardState::New => [
-                self.new_interval_new(settings, Score::Fail),
-                self.new_interval_new(settings, Score::Hard),
-                self.new_interval_new(settings, Score::Okay),
-                self.new_interval_new(settings, Score::Good),
-                self.new_interval_new(settings, Score::Easy),
+                self.new_interval_new(settings, Score::Fail, max_interval),
+                self.new_interval_new(settings, Score::Hard, max_interval),
+                self.new_interval_new(settings, Score::Okay, max_interval),
+                self.new_interval_new(settings, Score::Good, max_interval),
+                self.new_interval_new(settings, Score::Easy, max_interval),
             ],
             CardState::Learning(step) => [
-                self.new_interval_learning(settings, Score::Fail, step),
-                self.new_interval_learning(settings, Score::Hard, step),
-                self.new_interval_learning(settings, Score::Okay, step),
-                self.new_interval_learning(settings, Score::Good, step),
-                self.new_interval_learning(settings, Score::Easy, step),
+                self.new_interval_learning(settings, Score::Fail, step, max_interval),
+                self.new_interval_learning(settings, Score::Hard, step, max_interval),
+                self.new_interval_learning(settings, Score::Okay, step, max_interval),
+                self.new_interval_learning(settings, Score::Good, step, max_interval),
+                self.new_interval_learning(settings, Score::Easy, step, max_interval),
             ],
             CardState::Relearning(step) => [
-                self.new_interval_relearning(settings, Score::Fail, step),
-                self.new_interval_relearning(settings, Score::Hard, step),
-                self.new_interval_relearning(settings, Score::Okay, step),
-                self.new_interval_relearning(settings, Score::Good, step),
-                self.new_interval_relearning(settings, Score::Easy, step),
+                self.new_interval_relearning(settings, Score::Fail, step, max_interval),
+                self.new_interval_relearning(settings, Score::Hard, step, max_interval),
+                self.new_interval_relearning(settings, Score::Okay, step, max_interval),
+                self.new_interval_relearning(settings, Score::Good, step, max_interval),
+                self.new_interval_relearning(settings, Score::Easy, step, max_interval),
             ],
             CardState::Learnt => [
                 // If the card was failed, we enter relearning.
                 settings.relearning_intervals[0],
-                self.new_interval_learnt(settings, Score::Hard, priority, modifier),
-                self.new_interval_learnt(settings, Score::Okay, priority, modifier),
-                self.new_interval_learnt(settings, Score::Good, priority, modifier),
-                self.new_interval_learnt(settings, Score::Easy, priority, modifier),
+                self.new_interval_learnt(settings, Score::Hard, priority, modifier, max_interval),
+                self.new_interval_learnt(settings, Score::Okay, priority, modifier, max_interval),
+                self.new_interval_learnt(settings, Score::Good, priority, modifier, max_interval),
+                self.new_interval_learnt(settings, Score::Easy, priority, modifier, max_interval),
             ],
         }
     }
 
     /// Update the card after review.
-    pub fn review(&mut self, settings: &settings::TagSettings, score: Score, priority: Priority, familiarity: Ease) {
+    pub fn review(&mut self, settings: &settings::TagSettings, score: Score, priority: Priority, familiarity: Ease, max_interval: chrono::Duration) {
         let now = now();
         // Add review to card history.
         self.history.push(Review {
@@ -296,14 +302,14 @@ impl Metacard {
         match self.state {
             CardState::New => {
                 // Update interval.
-                self.current_interval = self.new_interval_new(settings, score);
+                self.current_interval = self.new_interval_new(settings, score, max_interval);
                 self.due = now + self.current_interval;
                 // Update state.
                 self.state = CardState::Learning(0);
             },
             CardState::Learning(step) => {
                 // Update interval.
-                self.current_interval = self.new_interval_learning(settings, score, step);
+                self.current_interval = self.new_interval_learning(settings, score, step, max_interval);
                 self.due = now + self.current_interval;
 
                 // TODO: Get rid of this spaghetti. This is already a done in
@@ -326,7 +332,7 @@ impl Metacard {
                 //       `new_interval_relearning`. For example, make `new_interval_relearning` also
                 //       return `new_step`.
                 // Update interval.
-                self.current_interval = self.new_interval_relearning(settings, score, step);
+                self.current_interval = self.new_interval_relearning(settings, score, step, max_interval);
                 self.due = now + self.current_interval;
 
                 // Calculate new step.
@@ -350,7 +356,7 @@ impl Metacard {
                     self.due = now + self.current_interval;
                 } else {
                     // Update interval.
-                    self.current_interval = self.new_interval_learnt(settings, score, priority, familiarity);
+                    self.current_interval = self.new_interval_learnt(settings, score, priority, familiarity, max_interval);
                     self.due = now + self.current_interval;
                 }
                 // Update ease.

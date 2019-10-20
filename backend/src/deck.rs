@@ -430,6 +430,7 @@ impl Parser {
                     "pdf" => self.current_card.view.extend(value.split(',').map(|x| x.trim().into()).map(cards::View::Pdf)),
                     "sh" => self.current_card.view.push(cards::View::Command(cards::Command(value.to_string()))),
                     "tags" => self.current_card.tags.extend(value.split(',').map(|x| x.trim().to_string())),
+                    "max interval" => self.current_card.max_interval = parse_duration(value)?,
                     "priority" => {
                         // Parse the priority
                         let priority = value.parse::<cards::Priority>()? - 1;
@@ -531,6 +532,7 @@ file: derived_couple.pdf
 tags: Definition
 priority: 5
 file: triad.pdf
+max interval: 500d
 
 [card 127]
 tags: Definition

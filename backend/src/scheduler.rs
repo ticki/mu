@@ -388,8 +388,17 @@ impl Scheduler {
         // Calculate the average of the familiarity.
         let average_familiarity = familiarity_sum / familiarity_num as f32;
         // Register the review on the metacard.
+        // TODO: Get rid of spaghetti.
         let priority = self.deck.cards[&self.sched.metacards[self.current_card].id].priority;
-        self.sched.metacards[self.current_card].review(tag_settings, score, priority, average_familiarity);
+        let max_interval = self.deck.cards[&self.sched.metacards[self.current_card].id].max_interval;
+        self.sched.metacards[self.current_card]
+            .review(
+                tag_settings,
+                score,
+                priority,
+                average_familiarity,
+                max_interval,
+            );
 
         // Add back the card to the schedule.
         self.reschedule();
@@ -434,7 +443,12 @@ impl Scheduler {
         }
 
         // Calculate the new intervals.
-        self.current_metacard().new_intervals(self.deck.tag_settings(&card.tags), card.priority, familiarity_sum / familiarity_num as f32)
+        self.current_metacard()
+            .new_intervals(
+                self.deck.tag_settings(&card.tags), card.priority,
+                familiarity_sum / familiarity_num as f32,
+                card.max_interval,
+            )
     }
 
     /// Get the number of due cards.
