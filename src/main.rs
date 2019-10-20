@@ -257,6 +257,7 @@ impl<W: Write, R: io::BufRead> State<W, R> {
             writeln!(self.stdout, "review {}:", n)?;
             writeln!(self.stdout, "    time:            {}", review.time.to_rfc2822())?;
             writeln!(self.stdout, "    due:             {}", review.due.to_rfc2822())?;
+            writeln!(self.stdout, "    score:           {}", review.score)?;
             writeln!(self.stdout, "    ended interval:  {}", DurationFormatter(review.ended_interval))?;
             writeln!(self.stdout, "    state before:    {:?}", review.state_before)?;
             writeln!(self.stdout, "    ease before:     {:?}", review.ease_before)?;

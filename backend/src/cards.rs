@@ -1,6 +1,6 @@
 //! Content and state of flashcards.
 
-use std::{env, process, io, cmp};
+use std::{env, process, io, cmp, fmt};
 
 use chrono;
 use serde::{Serialize, Deserialize};
@@ -53,6 +53,18 @@ pub enum Score {
     Good = 3,
     /// Success at a too easy level of difficulty.
     Easy = 4,
+}
+
+impl fmt::Display for Score {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Score::Fail => write!(f, "fail"),
+            Score::Hard => write!(f, "hard"),
+            Score::Okay => write!(f, "okay"),
+            Score::Good => write!(f, "good"),
+            Score::Easy => write!(f, "easy"),
+        }
+    }
 }
 
 /// A card's state.
@@ -190,6 +202,7 @@ impl Metacard {
 
     /// Calculate new interval assuming that `self.state` is `New`.
     fn new_interval_new(&self, settings: &settings::TagSettings, score: Score, max_interval: chrono::Duration) -> chrono::Duration {
+        // Cap at maximal interval.
         cmp::min(max_interval, settings.learning_intervals[settings.get_learning_interval(
             settings.learning_interval_progressions[score as usize] - 1
         )])
@@ -199,6 +212,7 @@ impl Metacard {
     fn new_interval_learning(&self, settings: &settings::TagSettings, score: Score, step: usize, max_interval: chrono::Duration)
         -> chrono::Duration
     {
+        // Cap at maximal interval.
         cmp::min(max_interval, settings.learning_intervals[settings.get_learning_interval(
             step as isize + settings.learning_interval_progressions[score as usize]
         )])
@@ -208,6 +222,7 @@ impl Metacard {
     fn new_interval_relearning(&self, settings: &settings::TagSettings, score: Score, step: usize, max_interval: chrono::Duration)
         -> chrono::Duration
     {
+        // Cap at maximal interval.
         cmp::min(max_interval, settings.relearning_intervals[settings.get_relearning_interval(
             step as isize + settings.relearning_interval_progressions[score as usize]
         )])
