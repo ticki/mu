@@ -27,7 +27,8 @@ fail, f  : Review the card as failed
 hard, h  : Review the card as hard
 okay, o  : Review the card as okay
 good, g  : Review the card as good
-easy, e  : Review the card as easy"#;
+easy, e  : Review the card as easy
+post, p  : Postpone the card to tomorrow"#;
 
 /// Formatter for durations.
 struct DurationFormatter(chrono::Duration);
@@ -153,6 +154,8 @@ impl<W: Write, R: io::BufRead> State<W, R> {
             "good" | "g" => self.review(backend::Score::Good)?,
             // Review: easy.
             "easy" | "e" => self.review(backend::Score::Easy)?,
+            // Postpone the card.
+            "post" | "p" => self.postpone()?,
             // Print card information.
             "info" | "i" => self.print_info()?,
             // Print metadata of the card.
@@ -196,6 +199,19 @@ impl<W: Write, R: io::BufRead> State<W, R> {
         self.scheduler.review(score);
         // Write the schedule to the file system.
         self.write()?;
+        // Show the new card.
+        self.show_card()?;
+        Ok(())
+    }
+
+    /// Postpone the card to tomorrow.
+    fn postpone(&mut self) -> Result<(), Error> {
+        // Postpone the card.
+        self.scheduler.postpone();
+        // Write the schedule to the file system.
+        self.write()?;
+        // Write a message to te user.
+        writeln!(self.stdout, "card is now due in 24 hours.")?;
         // Show the new card.
         self.show_card()?;
         Ok(())

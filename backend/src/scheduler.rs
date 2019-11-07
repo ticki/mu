@@ -409,6 +409,18 @@ impl Scheduler {
         self.update();
     }
 
+    /// Postpone the current card to the next day.
+    pub fn postpone(&mut self) {
+        // Set the new due date to tomorrow.
+        self.sched.metacards[self.current_card].postpone();
+        // Add back the card to the schedule.
+        self.reschedule();
+        // Pick a new card.
+        self.pick_card();
+        // Update the scheduler.
+        self.update();
+    }
+
     /// Get the current card's metacard.
     pub fn current_metacard(&self) -> &cards::Metacard {
         &self.sched.metacards[self.current_card]
