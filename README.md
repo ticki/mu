@@ -68,8 +68,8 @@ You can then run `mkmu`, which crawls directories (and subdirectories) and
 compiles the TeX files using the `latexmk` build tool. The resulting files are
 placed in the `deck` directory.
 
-You can then `cd` into `deck` and run `mu`, which starts `mu`, entering into a
-shell-like problem that looks like this (run `help` to see list of commands):
+You can then run `mu` in the directory containing the `deck/` directory, which starts `mu`, entering
+into a shell-like problem that looks like this (run `help` to see list of commands):
 
     ——— card 'grassmanian' ———
     file:      grassmanian.pdf

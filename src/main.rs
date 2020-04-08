@@ -28,7 +28,8 @@ hard, h  : Review the card as hard
 okay, o  : Review the card as okay
 good, g  : Review the card as good
 easy, e  : Review the card as easy
-post, p  : Postpone the card to tomorrow"#;
+post, p  : Postpone the card to tomorrow
+tnew, tn : Toggle whether new cards should be preferred"#;
 
 /// Formatter for durations.
 struct DurationFormatter(chrono::Duration);
@@ -123,9 +124,10 @@ impl<W: Write, R: io::BufRead> State<W, R> {
 
     /// Print the shell, that is, the text before the command input.
     pub fn print_shell(&mut self) -> Result<(), Error> {
-        write!(self.stdout, "D:{} N:{} {}>>{} ",
+        write!(self.stdout, "D:{} N:{}{} {}>>{} ",
             self.scheduler.due_cards(),
             self.scheduler.new_cards(),
+            if self.scheduler.prefer_new { "-" } else { "" },
             color::Fg(color::Red),
             color::Fg(color::Reset),
         )?;
@@ -168,6 +170,8 @@ impl<W: Write, R: io::BufRead> State<W, R> {
             "quit" | "q" => return Ok(false),
             // Print help screen.
             "help" | "he" => self.help()?,
+            // Toggle preference for new cards.
+            "tnew" | "tn" => self.scheduler.prefer_new ^= true,
             // Skip.
             "" => (),
             // Unknown command.

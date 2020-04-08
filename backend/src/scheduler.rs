@@ -188,6 +188,11 @@ pub struct Scheduler {
     /// This is supposed to reflect the number of cards in `self.queue` whose scheduled time is
     /// prior to the current point in time.
     due: usize,
+    /// Should we prefer new cards?
+    ///
+    /// When this is set to `true`, the scheduler will yield cards from the new queue whenever
+    /// possible.
+    pub prefer_new: bool,
 }
 
 impl Scheduler {
@@ -244,6 +249,7 @@ impl Scheduler {
             current_card: !0,
             queue,
             due: 0,
+            prefer_new: false,
         };
 
         // Populate the new cards queue with the new cards from today, that are not studied yet.
@@ -323,8 +329,8 @@ impl Scheduler {
         let new = if self.new_queue.is_empty() {
             // There are no new cards to be introduced.
             false
-        } else if self.due == 0 {
-            // There are no due cards.
+        } else if self.due == 0 || self.prefer_new {
+            // There are no due cards, or new cards are preferred.
             true
         // Randomly choose between the new queue or the due cards. The ratio is chosen such
         // that the space between new cards is as wide as possible.
