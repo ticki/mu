@@ -51,6 +51,29 @@ fn main_err() -> Result<(), Error> {
             // Get the path.
             let path = entry.path();
             if path.extension() == Some(OsStr::new("tex")) {
+                // Read TeX file.
+                let mut tex_file = fs::File::open(&path)?;
+                let mut tex = String::new();
+                tex_file.read_to_string(&mut tex)?;
+
+                // Skip if there is no metadata.
+                if !tex.starts_with("%") {
+                    writeln!(stdout, "Skipping {:?} due to lack of metadata (file must start with `%`)", path)?;
+                    continue;
+                }
+
+                // Write section.
+                deck.push_str(&format!("[card {}]\n", path.file_stem().unwrap().to_str().unwrap()));
+                // Go over key-value pairs.
+                for line in tex.lines().take_while(|line| line.starts_with("%")) {
+                    // Rid the `%` starting the comment and trim spaces.
+                    let line = line[1..].trim();
+                    // Add the key-value pair.
+                    deck.push_str(line);
+                    // Append newline.
+                    deck.push('\n');
+                }
+
                 // This is a TeX file.
                 writeln!(stdout, "Compiling {:?}", path)?;
 
@@ -72,25 +95,8 @@ fn main_err() -> Result<(), Error> {
                     return Err(failure::err_msg("Compilation failed."));
                 }
 
-                // Read TeX file.
-                let mut tex_file = fs::File::open(&path)?;
-                let mut tex = String::new();
-                tex_file.read_to_string(&mut tex)?;
-
                 // TODO: Don't do unwrap.
                 // Generate metadata from the first comments in the TeX file.
-
-                // Write section.
-                deck.push_str(&format!("[card {}]\n", path.file_stem().unwrap().to_str().unwrap()));
-                // Go over key-value pairs.
-                for line in tex.lines().take_while(|line| line.starts_with("%")) {
-                    // Rid the `%` starting the comment and trim spaces.
-                    let line = line[1..].trim();
-                    // Add the key-value pair.
-                    deck.push_str(line);
-                    // Append newline.
-                    deck.push('\n');
-                }
             }
         }
     }
