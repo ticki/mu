@@ -143,7 +143,7 @@ impl Default for TagSettings {
             familiarity_delta: 0.1,
             max_familiarity: 2.0,
             min_familiarity: 0.4,
-            desired_retention_rate: 0.82,
+            desired_retention_rate: 0.92,
         }
     }
 }
