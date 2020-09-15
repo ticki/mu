@@ -28,7 +28,7 @@ hard, h  : Review the card as hard
 okay, o  : Review the card as okay
 good, g  : Review the card as good
 easy, e  : Review the card as easy
-post, p  : Postpone the card to tomorrow
+skip, s  : Skip the card for this session
 tnew, tn : Toggle whether new cards should be preferred"#;
 
 /// Formatter for durations.
@@ -156,8 +156,8 @@ impl<W: Write, R: io::BufRead> State<W, R> {
             "good" | "g" => self.review(backend::Score::Good)?,
             // Review: easy.
             "easy" | "e" => self.review(backend::Score::Easy)?,
-            // Postpone the card.
-            "post" | "p" => self.postpone()?,
+            // Skip the card.
+            "skip" | "s" => self.skip()?,
             // Print card information.
             "info" | "i" => self.print_info()?,
             // Print metadata of the card.
@@ -208,14 +208,14 @@ impl<W: Write, R: io::BufRead> State<W, R> {
         Ok(())
     }
 
-    /// Postpone the card to tomorrow.
-    fn postpone(&mut self) -> Result<(), Error> {
-        // Postpone the card.
-        self.scheduler.postpone();
+    /// Skip the card for this session.
+    fn skip(&mut self) -> Result<(), Error> {
+        // Skip the card.
+        self.scheduler.skip();
         // Write the schedule to the file system.
         self.write()?;
-        // Write a message to te user.
-        writeln!(self.stdout, "card is now due in 24 hours.")?;
+        // Write a message to the user.
+        writeln!(self.stdout, "card will reappear after restart.")?;
         // Show the new card.
         self.show_card()?;
         Ok(())

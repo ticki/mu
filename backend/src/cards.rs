@@ -200,13 +200,6 @@ impl Metacard {
         }
     }
 
-    /// Postpone a card to the next day.
-    ///
-    /// This sets the new due date to 24 hours after the current time.
-    pub fn postpone(&mut self) {
-        self.due = now() + chrono::Duration::days(1);
-    }
-
     /// Calculate new interval assuming that `self.state` is `New`.
     fn new_interval_new(&self, settings: &settings::TagSettings, score: Score, max_interval: chrono::Duration) -> chrono::Duration {
         // Cap at maximal interval.

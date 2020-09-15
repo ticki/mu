@@ -415,12 +415,11 @@ impl Scheduler {
         self.update();
     }
 
-    /// Postpone the current card to the next day.
-    pub fn postpone(&mut self) {
-        // Set the new due date to tomorrow.
-        self.sched.metacards[self.current_card].postpone();
-        // Add back the card to the schedule.
-        self.reschedule();
+    /// Skip the current card in this session.
+    ///
+    /// This intentionally orphans the card, so that the card is only recovered when `mu` is
+    /// restarted.
+    pub fn skip(&mut self) {
         // Pick a new card.
         self.pick_card();
         // Update the scheduler.
