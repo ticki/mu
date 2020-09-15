@@ -9,6 +9,8 @@ pub struct GlobalSettings {
     pub max_new_queue: usize,
     /// The maximal number of unlearnt cards that can be introduced on a day.
     pub max_new_daily: usize,
+    /// The lower bound for the probability that a card is drawn from the new queue if nonempty.
+    pub min_new_probability: f64,
 }
 
 impl Default for GlobalSettings {
@@ -16,6 +18,7 @@ impl Default for GlobalSettings {
         GlobalSettings {
             max_new_queue: 20,
             max_new_daily: 10,
+            min_new_probability: 0.15,
         }
     }
 }

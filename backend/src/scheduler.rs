@@ -333,11 +333,13 @@ impl Scheduler {
             // There are no due cards, or new cards are preferred.
             true
         // Randomly choose between the new queue or the due cards. The ratio is chosen such
-        // that the space between new cards is as wide as possible.
-        } else if self.new_queue.len() <= self.due {
-            rand::thread_rng().gen_ratio(self.new_queue.len() as u32, self.due as u32)
+        // that the space between new cards is as wide as possible, unless the probability is too
+        // small.
         } else {
-            !rand::thread_rng().gen_ratio(self.due as u32, self.new_queue.len() as u32)
+            // Saturate at lower bound for probability.
+            rand::thread_rng().gen_bool(self.deck.settings.min_new_probability.max(
+                self.new_queue.len() as f64 / (self.due as f64 + self.new_queue.len() as f64)
+            ))
         };
 
         if new {
