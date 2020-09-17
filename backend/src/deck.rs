@@ -374,6 +374,7 @@ impl Parser {
                 match key {
                     "max new queue" => self.deck.settings.max_new_queue = value.parse()?,
                     "max new daily" => self.deck.settings.max_new_daily = value.parse()?,
+                    "min new probability" => self.deck.settings.min_new_probability = value.parse()?,
                     _ => return Err(ParsingError::Other("unknown key")),
                 }
             },
