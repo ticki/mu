@@ -6,14 +6,14 @@ decided to write `mu`, which essentially replicates the functionality of Anki, b
 
 - _A text-based, shell-like interface instead of a GUI:_ I hope I need not convince you that using
   your keyboard is faster than using your mouse, and as such (at least for "advanced users")
-  programs centered around text (which is most programs) ought to be TUIs.
+  programs centered around text (which is most programs) ought to be terminal-based.
 - _First-class TeX integration:_ While Anki does support TeX, it feels like a hack with all sorts of
   issues with diagrams and so on. `mu` is literally just opening a PDF viewer (e.g. in some sort of
-  presentation mode, as `zathura` implements) for viewing card, and therefore will just view your
+  presentation mode, as `zathura` implements) for viewing card, and will therefore just view your
   rendered TeX file.
 - _Flashcards sit in the file system instead of a database:_ One major issue with Anki is that
-  flashcards are stored in a database file, which in particular means that you cannot keep your
-  cards in a Git repository.
+  flashcards are stored in a database file, which means in particular that you cannot keep your
+  cards neatly in a version control system.
 - _Editing is done in your editor of choice:_ Somewhat adjacent to the previous point, I found that
   the Anki editor encouraged laziness, because I could not use my editor of choice when creating and
   editing cards. When I have increased control, I care more and as a result I don't get a deck that
@@ -40,7 +40,7 @@ another.
 - [ ] Align `rt` table.
 - [ ] Add command to output sorted familiarities.
 - [ ] Better, non-automated control over intervals:
-  - [ ] Postponing cards
+  - [x] Postponing cards
 
 ## Usage
 
@@ -62,8 +62,8 @@ calculation of intervals).
 You can then run `mkmu`, which crawls directories (and subdirectories) and compiles the TeX files
 using the `latexmk` build tool. The resulting files are placed in the `deck` directory.
 
-You can then run `mu` in the directory containing the `deck/` directory, which starts `mu`, entering
-into a shell-like problem that looks like this (run `help` to see list of commands):
+After that, you may run `mu` in the directory containing the `deck/` directory, which starts `mu`,
+entering into a shell-like program that looks like this (run `help` to see list of commands):
 
     ——— card 'grassmanian' ———
     file:      grassmanian.pdf
